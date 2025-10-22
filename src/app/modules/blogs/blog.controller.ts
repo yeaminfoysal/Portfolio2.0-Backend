@@ -3,7 +3,12 @@ import { Blog } from "./blog.model";
 
 export const createBlog = async (req: Request, res: Response) => {
     try {
-        const blog = await Blog.create(req.body);
+        const parsedData = JSON.parse(req.body.data);
+        const payload = {
+            ...parsedData,
+            thumbnail: req.file?.path
+        }
+        const blog = await Blog.create(payload);
         res.status(201).json({
             success: true,
             message: "Blog created successfully",
@@ -45,7 +50,18 @@ export const getBlogById = async (req: Request, res: Response) => {
 
 export const updateBlog = async (req: Request, res: Response) => {
     try {
-        const blog = await Blog.findByIdAndUpdate(req.params.id, req.body, {
+        const parsedData = req.body.data ? JSON.parse(req.body.data) : req.body;
+
+        let updatedData = parsedData;
+
+        if (req.files && (req.files as Express.Multer.File[]).length > 0) {
+            updatedData = {
+                ...parsedData,
+                thumbnail: req.file?.path
+            };
+        }
+
+        const blog = await Blog.findByIdAndUpdate(req.params.id, updatedData, {
             new: true,
             runValidators: true,
         });

@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import expressSession from "express-session"
 import { projectRoutes } from "./app/modules/project/project.route";
 import blogRoutes from "./app/modules/blogs/blog.route";
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 
 const app = express();
 app.use(expressSession({
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.json());
 app.set("trust proxy", 1)
+app.use(express.urlencoded({ extended: true }))
 app.use(cors(
     {
         origin: ["http://localhost:4000", "https://ride-mate-frontend.vercel.app"],
@@ -31,7 +33,7 @@ app.get("/", (req, res) => {
     })
 })
 
-// app.use(globalErrorHandler)
+app.use(globalErrorHandler)
 
 app.use((req: Request, res: Response) => {
     res.status(404).json({

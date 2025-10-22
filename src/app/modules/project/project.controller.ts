@@ -1,51 +1,63 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Project from "./project.model";
+import { IProject } from "./project.interface";
 
-export const createProject = async (req: Request, res: Response) => {
+export const createProject = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const project = await Project.create(req.body);
+        const parsedData = JSON.parse(req.body.data);
+        const payload: IProject = {
+            ...parsedData,
+            images: (req.files as Express.Multer.File[]).map(file => file.path)
+        };
+
+        const project = await Project.create(payload);
         return res.status(201).json({
             success: true,
             message: "Project created successfully",
             data: project,
         });
     } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: "Failed to create project",
-            error: error.message,
-        });
+        next(error)
     }
 };
 
-export const updateProject = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const project = await Project.findByIdAndUpdate(id, req.body, {
-            new: true,
-            runValidators: true,
-        });
+export const updateProject = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const parsedData = req.body.data ? JSON.parse(req.body.data) : req.body;
 
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                message: "Project not found",
-            });
-        }
+    let updatedData = parsedData;
 
-        return res.status(200).json({
-            success: true,
-            message: "Project updated successfully",
-            data: project,
-        });
-    } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: "Failed to update project",
-            error: error.message,
-        });
+    if (req.files && (req.files as Express.Multer.File[]).length > 0) {
+      updatedData = {
+        ...parsedData,
+        images: (req.files as Express.Multer.File[]).map((file) => file.path),
+      };
     }
+
+    const project = await Project.findByIdAndUpdate(id, updatedData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      data: project,
+    });
+  } catch (error: any) {
+    console.error("Update error:", error);
+    next(error);
+  }
 };
+
 
 export const getAllProjects = async (_req: Request, res: Response) => {
     try {

@@ -6,10 +6,15 @@ import {
     updateBlog,
     deleteBlog
 } from "./blog.controller";
+import { multerUpload } from "../../config/multer.config";
 
 const blogRoutes = express.Router();
 
-blogRoutes.post("/", createBlog);
+blogRoutes.post(
+    "/",
+    multerUpload.single("file"),
+    createBlog
+);
 blogRoutes.get("/", getBlogs);
 blogRoutes.get("/:id", getBlogById);
 blogRoutes.patch("/:id", updateBlog);
