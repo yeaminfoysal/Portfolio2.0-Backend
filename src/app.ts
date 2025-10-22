@@ -3,6 +3,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import expressSession from "express-session"
 import { projectRoutes } from "./app/modules/project/project.route";
+import blogRoutes from "./app/modules/blogs/blog.route";
 
 const app = express();
 app.use(expressSession({
@@ -22,6 +23,7 @@ app.use(cors(
 ));
 
 app.use("/api/projects", projectRoutes);
+app.use("/api/blogs", blogRoutes);
 
 app.get("/", (req, res) => {
     res.status(200).json({

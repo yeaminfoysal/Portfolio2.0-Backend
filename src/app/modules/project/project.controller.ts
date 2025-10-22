@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import Project from "./project.model";
 
-// CREATE a new project
 export const createProject = async (req: Request, res: Response) => {
     try {
         const project = await Project.create(req.body);
@@ -19,7 +18,6 @@ export const createProject = async (req: Request, res: Response) => {
     }
 };
 
-// UPDATE a project by ID
 export const updateProject = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -49,7 +47,6 @@ export const updateProject = async (req: Request, res: Response) => {
     }
 };
 
-// GET all projects
 export const getAllProjects = async (_req: Request, res: Response) => {
     try {
         const projects = await Project.find().sort({ createdAt: -1 });
@@ -68,7 +65,6 @@ export const getAllProjects = async (_req: Request, res: Response) => {
     }
 };
 
-// GET single project by ID
 export const getProjectById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -94,7 +90,6 @@ export const getProjectById = async (req: Request, res: Response) => {
     }
 };
 
-// DELETE project
 export const deleteProject = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
