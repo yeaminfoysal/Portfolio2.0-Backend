@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Blog } from "./blog.model";
 
 export const createBlog = async (req: Request, res: Response) => {
@@ -48,13 +48,15 @@ export const getBlogById = async (req: Request, res: Response) => {
     }
 };
 
-export const updateBlog = async (req: Request, res: Response) => {
+export const updateBlog = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        console.log(req.body.data)
         const parsedData = req.body.data ? JSON.parse(req.body.data) : req.body;
 
         let updatedData = parsedData;
+        console.log(parsedData)
 
-        if (req.files && (req.files as Express.Multer.File[]).length > 0) {
+        if (req.file && (req.file as Express.Multer.File)) {
             updatedData = {
                 ...parsedData,
                 thumbnail: req.file?.path
@@ -74,7 +76,8 @@ export const updateBlog = async (req: Request, res: Response) => {
             data: blog,
         });
     } catch (error: any) {
-        res.status(400).json({ success: false, message: "Blog update failed", error: error.message });
+        console.error("Update error:", error);
+        next(error);
     }
 };
 
