@@ -30,3 +30,8 @@ const storage = new CloudinaryStorage({
 })
 
 export const multerUpload = multer({ storage: storage })
+
+export const uploadProjectImages = multerUpload.fields([
+  { name: "thumbnail", maxCount: 1 },
+  { name: "fullImage", maxCount: 1 },
+]);

@@ -1,7 +1,8 @@
 export interface IProject {
     _id?: string;
     title: string;
-    images: string[];
+    thumbnail: string;
+    fullImage: string;
     technologies: {
         frontend?: string[];
         backend?: string[];
@@ -20,6 +21,7 @@ export interface IProject {
     status?: "Ongoing" | "Completed";
     category?: "Full-stack" | "Frontend" | "Backend";
     isFeatured?: boolean;
+    position?: number;
     createdAt?: Date;
     updatedAt?: Date;
 }

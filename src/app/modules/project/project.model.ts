@@ -8,8 +8,12 @@ const ProjectSchema = new Schema<IProject>(
             required: true,
             trim: true,
         },
-        images: {
-            type: [String],
+        thumbnail: {
+            type: String,
+            required: true,
+        },
+        fullImage: {
+            type: String,
             required: true,
         },
         technologies: {
@@ -46,6 +50,7 @@ const ProjectSchema = new Schema<IProject>(
             default: "Full-stack",
         },
         isFeatured: { type: Boolean, default: false },
+        position: { type: Number, unique: true, sparse: true },
     },
     {
         timestamps: true,

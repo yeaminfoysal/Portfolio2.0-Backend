@@ -15,11 +15,15 @@ export const createProject = async (req: Request, res: Response, next: NextFunct
             tools: tech.tools?.[0]?.split(",").map((t: string) => t.trim()) || [],
         };
 
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
         const payload: IProject = {
             ...parsedData,
             technologies: formattedTechnologies,
-            images: (req.files as Express.Multer.File[]).map((file) => file.path),
+            thumbnail: files.thumbnail?.[0]?.path || null,
+            fullImage: files.fullImage?.[0]?.path || null
         };
+
         const project = await Project.create(payload);
 
         return res.status(201).json({
@@ -28,56 +32,59 @@ export const createProject = async (req: Request, res: Response, next: NextFunct
             data: project
         });
     } catch (error: any) {
+        console.error("Create Project error:", error);
         next(error);
     }
 };
 
 
 export const updateProject = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-    const parsedData = req.body.data ? JSON.parse(req.body.data) : req.body;
+    try {
+        const { id } = req.params;
+        const parsedData = req.body.data ? JSON.parse(req.body.data) : req.body;
 
-    const tech = parsedData.technologies || {};
+        const tech = parsedData.technologies || {};
 
-    const updatedData: any = {
-      ...parsedData,
-      technologies: {
-        frontend: normalizeTech(tech.frontend),
-        backend: normalizeTech(tech.backend),
-        database: normalizeTech(tech.database),
-        tools: normalizeTech(tech.tools),
-      },
-    };
+        const updatedData: any = {
+            ...parsedData,
+            technologies: {
+                frontend: normalizeTech(tech.frontend),
+                backend: normalizeTech(tech.backend),
+                database: normalizeTech(tech.database),
+                tools: normalizeTech(tech.tools),
+            },
+        };
 
-    if (req.files && (req.files as Express.Multer.File[]).length > 0) {
-      updatedData.images = (req.files as Express.Multer.File[]).map(
-        file => file.path
-      );
+        // Handle uploaded files
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        if (files) {
+            if (files.thumbnail && files.thumbnail[0]) updatedData.thumbnail = files.thumbnail[0].path;
+            if (files.fullImage && files.fullImage[0]) updatedData.fullImage = files.fullImage[0].path;
+        }
+
+        const project = await Project.findByIdAndUpdate(id, updatedData, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Project updated successfully",
+            data: project,
+        });
+    } catch (error) {
+        console.error("Update error:", error);
+        next(error);
     }
-
-    const project = await Project.findByIdAndUpdate(id, updatedData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Project updated successfully",
-      data: project,
-    });
-  } catch (error) {
-    console.error("Update error:", error);
-    next(error);
-  }
 };
+
 
 
 export const getAllProjects = async (_req: Request, res: Response) => {

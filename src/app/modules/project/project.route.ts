@@ -1,6 +1,6 @@
 import express from "express";
 import { createProject, deleteProject, getAllProjects, getProjectById, updateProject } from "./project.controller";
-import { multerUpload } from "../../config/multer.config";
+import { multerUpload, uploadProjectImages } from "../../config/multer.config";
 import { checkAuth } from "../../middlewares/checkAuth";
 
 export const projectRoutes = express.Router();
@@ -8,15 +8,16 @@ export const projectRoutes = express.Router();
 projectRoutes.post(
     "/",
     checkAuth("ADMIN"),
-    multerUpload.array("files"),
+    uploadProjectImages,
     createProject
 );
+
 projectRoutes.get("/", getAllProjects);
 projectRoutes.get("/:id", getProjectById);
 projectRoutes.patch(
     "/:id",
     checkAuth("ADMIN"),
-    multerUpload.array("files"),
+    uploadProjectImages,
     updateProject
 );
 projectRoutes.delete(

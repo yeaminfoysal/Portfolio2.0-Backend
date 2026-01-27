@@ -13,45 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
-const passport_1 = __importDefault(require("passport"));
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
-const createUserTokens_1 = require("../../utils/createUserTokens");
-const setCookie_1 = require("../../utils/setCookie");
-const driver_model_1 = require("../driver/driver.model");
-const auth_services_1 = require("./auth.services");
-const credentialsLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        passport_1.default.authenticate("local", (err, user, info) => __awaiter(void 0, void 0, void 0, function* () {
-            if (err) {
-                return next(new AppError_1.default(401, err));
-            }
-            if (!user) {
-                return next(new AppError_1.default(404, info.message));
-            }
-            let driverId;
-            if (user.role == "DRIVER") {
-                const driver = yield driver_model_1.Driver.findOne({ user: user._id });
-                driverId = driver === null || driver === void 0 ? void 0 : driver._id.toString();
-            }
-            const userTokens = (0, createUserTokens_1.createUserToken)(user, driverId);
-            const userObj = user.toObject();
-            delete userObj.password;
-            (0, setCookie_1.setCookie)(res, userTokens);
-            res.status(200).json({
-                message: "User Logged In Successfully",
-                success: true,
-                data: {
-                    accessToken: userTokens.accessToken,
-                    refreshToken: userTokens.refreshToken,
-                    user: userObj
-                }
-            });
-        }))(req, res, next);
-    }
-    catch (error) {
-        next(error);
-    }
-});
+const setCookie_1 = require("../../utilies/setCookie");
+const createUserTokens_1 = require("../../utilies/createUserTokens");
 const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         res.clearCookie("refreshToken", {
@@ -74,37 +38,13 @@ const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         next(error);
     }
 });
-const changePassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const oldPassword = req.body.currentPassword;
-        const newPassword = req.body.newPassword;
-        const decodedToken = req.user;
-        if (!decodedToken) {
-            throw new AppError_1.default(400, "Invalid decoded token");
-        }
-        yield auth_services_1.authServices.changePassword(oldPassword, newPassword, decodedToken);
-        res.status(200).json({
-            message: "Password changed successfull",
-            success: true,
-            data: null
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-});
 const googleCallbackController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    let redirectTo = req.query.state ? req.query.state : "";
-    if (redirectTo.startsWith("/")) {
-        redirectTo = redirectTo.slice(1);
-    }
-    // /booking => booking , => "/" => ""
     const user = req.user;
     if (!user) {
         throw new AppError_1.default(404, "User Not Found");
     }
     const tokenInfo = (0, createUserTokens_1.createUserToken)(user);
     (0, setCookie_1.setCookie)(res, tokenInfo);
-    res.redirect(`${process.env.FRONTEND_URL}/`);
+    res.redirect(`${process.env.FRONTEND_URL}`);
 });
-exports.AuthController = { credentialsLogin, changePassword, logout, googleCallbackController };
+exports.AuthController = { logout, googleCallbackController };
