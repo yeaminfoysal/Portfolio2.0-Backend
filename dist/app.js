@@ -14,21 +14,39 @@ const auth_route_1 = require("./app/modules/auth/auth.route");
 require("./app/config/passport");
 const passport_1 = __importDefault(require("passport"));
 const app = (0, express_1.default)();
+// ✅ CORS সবার আগে
+app.use((0, cors_1.default)({
+    origin: [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://yeamin-foysal.web.app"
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+// ✅ Trust proxy (Vercel এর জন্য দরকার)
+app.set("trust proxy", 1);
+// ✅ Body parsers
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use((0, cookie_parser_1.default)());
+// ✅ Session configuration
 app.use((0, express_session_1.default)({
     secret: process.env.EXPRESS_SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        secure: true, // production এ true
+        httpOnly: true,
+        sameSite: "lax", // cross-origin এর জন্য
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+    }
 }));
+// ✅ Passport
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
-app.use((0, cookie_parser_1.default)());
-app.use(express_1.default.json());
-app.set("trust proxy", 1);
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use((0, cors_1.default)({
-    origin: ["http://localhost:3000", "http://localhost:3001", "https://ride-mate-frontend.vercel.app"],
-    credentials: true
-}));
+// Routes
 app.use("/api/projects", project_route_1.projectRoutes);
 app.use("/api/blogs", blog_route_1.default);
 app.use("/api/auth", auth_route_1.authRoutes);

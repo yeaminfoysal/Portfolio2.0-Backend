@@ -42,7 +42,7 @@ const googleCallbackController = async (req: Request, res: Response, next: NextF
 
     setCookie(res, tokenInfo)
 
-    res.redirect(`${process.env.FRONTEND_URL}`)
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard`)
 }
 
 

@@ -45,6 +45,6 @@ const googleCallbackController = (req, res, next) => __awaiter(void 0, void 0, v
     }
     const tokenInfo = (0, createUserTokens_1.createUserToken)(user);
     (0, setCookie_1.setCookie)(res, tokenInfo);
-    res.redirect(`${process.env.FRONTEND_URL}`);
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
 });
 exports.AuthController = { logout, googleCallbackController };
