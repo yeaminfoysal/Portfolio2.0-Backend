@@ -9,16 +9,18 @@ import { createUserToken } from "../../utilies/createUserTokens";
 const logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none"
-        })
         res.clearCookie("accessToken", {
             httpOnly: true,
             secure: true,
             sameSite: "none"
-        })
+        });
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        });
+
 
         res.status(200).json({
             message: "User logged out successfull",
@@ -40,9 +42,9 @@ const googleCallbackController = async (req: Request, res: Response, next: NextF
 
     const tokenInfo = createUserToken(user)
 
-    setCookie(res, tokenInfo)
+    // setCookie(res, tokenInfo)
 
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`)
+    res.redirect(`${process.env.FRONTEND_URL}/auth?accessToken=${tokenInfo.accessToken}&refreshToken=${tokenInfo.refreshToken}`)
 }
 
 

@@ -14,16 +14,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
-const setCookie_1 = require("../../utilies/setCookie");
 const createUserTokens_1 = require("../../utilies/createUserTokens");
 const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.clearCookie("refreshToken", {
+        res.clearCookie("accessToken", {
             httpOnly: true,
             secure: true,
             sameSite: "none"
         });
-        res.clearCookie("accessToken", {
+        res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: true,
             sameSite: "none"
@@ -44,7 +43,7 @@ const googleCallbackController = (req, res, next) => __awaiter(void 0, void 0, v
         throw new AppError_1.default(404, "User Not Found");
     }
     const tokenInfo = (0, createUserTokens_1.createUserToken)(user);
-    (0, setCookie_1.setCookie)(res, tokenInfo);
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    // setCookie(res, tokenInfo)
+    res.redirect(`${process.env.FRONTEND_URL}/auth?accessToken=${tokenInfo.accessToken}&refreshToken=${tokenInfo.refreshToken}`);
 });
 exports.AuthController = { logout, googleCallbackController };

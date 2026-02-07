@@ -16,6 +16,7 @@ app.use(cors({
     origin: [
         "http://localhost:3000",
         "http://localhost:3001",
+        "https://yeamin-foysal.vercel.app",
         "https://yeamin-foysal.web.app"
     ],
     credentials: true,
@@ -40,7 +41,8 @@ app.use(expressSession({
         secure: true, // production এ true
         httpOnly: true,
          sameSite: "lax" as const, // cross-origin এর জন্য
-        maxAge: 24 * 60 * 60 * 1000 // 1 day
+        maxAge: 24 * 60 * 60 * 1000 ,// 1 day
+        domain: process.env.NODE_ENV === "production" ? "yeamin-foysal.vercel.app" : "localhost"
     }
 }));
 

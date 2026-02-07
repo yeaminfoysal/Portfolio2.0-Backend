@@ -6,21 +6,24 @@ interface AuthTokens {
 }
 
 export const setCookie = (res: Response, tokenInfo: AuthTokens) => {
-    const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // production check
-        sameSite: "lax" as const,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    const baseOptions = {
+        // httpOnly: true,
+        // secure: true,
+        sameSite: "none" as const,
+        domain: process.env.NODE_ENV === "production" ? "yeamin-foysal.vercel.app" : "localhost"
     };
 
     if (tokenInfo.accessToken) {
-        res.cookie("accessToken", tokenInfo.accessToken, cookieOptions);
+        res.cookie("accessToken", tokenInfo.accessToken, {
+            ...baseOptions,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
     }
 
     if (tokenInfo.refreshToken) {
         res.cookie("refreshToken", tokenInfo.refreshToken, {
-            ...cookieOptions,
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days for refresh token
+            ...baseOptions,
+            maxAge: 30 * 24 * 60 * 60 * 1000,
         });
     }
-}
+};
